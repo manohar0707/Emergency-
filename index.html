@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: red;
+            background-color: #f2f2f2;
+            border: 1px solid red;
+            cursor: pointer;
+        }
+        h1 {
+            color: red;
+        }
+        h3 {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Save Your Life</h1>
+    <h3>Click the button to send help</h3>
+    <button id="sendHelp">HELP</button>
+
+    <script>
+        // Attach click event to the HELP button
+        document.getElementById('sendHelp').addEventListener('click', function () {
+            console.log("HELP button clicked!");
+
+            // Get user's current location
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    const locationLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+                    console.log("Latitude:", latitude, "Longitude:", longitude);
+                    console.log("Location link:", locationLink);
+
+                    // Send the location to the backend
+                    fetch('http://localhost:3000/send-alert', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            message: `Emergency! Please send help. Location: ${locationLink}`,
+                            phones: ['+918978564296','+918885755945'] // Replace with the recipient's phone number
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => console.log("Message sent:", data))
+                    .catch(error => console.error("Error:", error));
+                },
+                (error) => {
+                    alert('Unable to fetch location. Please enable location services in your browser.');
+                    console.error("Geolocation error:", error);
+                }
+            );
+        });
+    </script>
+</body>
+</html>
